@@ -11,9 +11,9 @@
 %%%     exGraph = gfpopGraph(upEdge,dwEdge,upNull,dwNull);
 %%%     
 
-function [outGraph] = gfpopGraph(varargin)
-    state1vec = zeros(1,length(varargin));
-    state2vec = zeros(1,length(varargin));
+function [outputGraph,vertexNames] = gfpopGraph(varargin)
+    state1vec = [];
+    state2vec = [];
     typevec = [];
     paramvec = zeros(1,length(varargin));
     penaltyvec = zeros(1,length(varargin));
@@ -23,8 +23,8 @@ function [outGraph] = gfpopGraph(varargin)
     maxvec = zeros(1,length(varargin));
     for i = 1:length(varargin)
         tempEdge = varargin{1,i};
-        state1vec(i) = tempEdge.state1;
-        state2vec(i) = tempEdge.state2;
+        state1vec = [state1vec tempEdge.state1];
+        state2vec = [state2vec tempEdge.state2];
         typevec = [typevec tempEdge.type];
         paramvec(i) = tempEdge.parameter;
         penaltyvec(i) = tempEdge.penalty;
@@ -33,6 +33,9 @@ function [outGraph] = gfpopGraph(varargin)
         minvec(i) = tempEdge.min;
         maxvec(i) = tempEdge.max;
     end
-    outGraph = struct("state1",state1vec,"state2",state2vec,"type",typevec,"parameter",paramvec, ...
+    inputGraph = struct("state1",state1vec,"state2",state2vec,"type",typevec,"parameter",paramvec, ...
                       "penalty", penaltyvec,"K",kvec,"a",avec,"min",minvec,"max",maxvec);
+
+    [outputGraph,vertexNames] = gfpopGraphReorder(inputGraph);
+
 end
