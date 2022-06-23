@@ -11,7 +11,8 @@
 %%%                     down <- u(t) > u(t+1) + gap
 %%%                     abs <- |u(t+1)-u(t)| > gap
 %%%     [Optional]
-%%%     parameter --> double of the parameters for the edge.
+%%%     decay --> nonnegative to give strength to decay into edge
+%%%     gap --> nonnegative to constrain size of gap in state change
 %%%     penalty --> nonnegative double of the penalty for the edge.
 %%%     K --> positive double of the robust biweight gaussian loss
 %%%     a --> positive double of the slope for the huber robust loss
@@ -19,7 +20,8 @@
 %%%     max --> nonnegative double of the maximum gap for the edge
 %%%
 %%%     OPTIONAL INPUT DEFAULTS:
-%%%     parameter = 0
+%%%     decay = 0
+%%%     gap = 0;
 %%%     penalty = 0
 %%%     K = Inf
 %%%     a = 0
@@ -37,29 +39,31 @@ function edge = gfpopEdge(state1,state2,edgeType,varargin)
     
     % Default Values for Optional Inputs
     p = inputParser;
-    defaultparameter = 0;
-    defaultpenalty = 0;
-    defaultk = Inf;
-    defaulta = 0;
-    defaultmin = NaN;
-    defaultmax = NaN;
 
     % Checking inputs for required and optional values
     addRequired(p,'state1',@isstring);
     addRequired(p,'state2',@isstring);
     addRequired(p,'edgeType',@isstring);
-    addParameter(p,'parameter',defaultparameter,@isnumeric);
-    addParameter(p,'penalty',defaultpenalty,@isnumeric);
-    addParameter(p,'k',defaultk,@isnumeric);
-    addParameter(p,'a',defaulta,@isnumeric);
-    addParameter(p,'min',defaultmin,@isnumeric);
-    addParameter(p,'max',defaultmax,@isnumeric);
+    addParameter(p,'decay',1,@isnumeric);
+    addParameter(p,'gap',0,@isnumeric);
+    addParameter(p,'penalty',0,@isnumeric);
+    addParameter(p,'k',Inf,@isnumeric);
+    addParameter(p,'a',0,@isnumeric);
+    addParameter(p,'min',NaN,@isnumeric);
+    addParameter(p,'max',NaN,@isnumeric);
 
     % Parsing inputs together
     parse(p,state1,state2,edgeType,varargin{:});
 
+    % Checking edge to choose decay or gap
+    if(p.Results.edgeType == "null")
+        parameter = p.Results.decay;
+    else
+        parameter = p.Results.gap;
+    end
+
     % Constructing edge struct
-    edge = struct("state1",p.Results.state1,"state2",p.Results.state2,"type",p.Results.edgeType,"parameter",p.Results.parameter, ...
+    edge = struct("state1",p.Results.state1,"state2",p.Results.state2,"type",p.Results.edgeType,"parameter",parameter, ...
                   "penalty",p.Results.penalty,"k",p.Results.k,"a",p.Results.a,"min",p.Results.min,"max",p.Results.max);
 
 end

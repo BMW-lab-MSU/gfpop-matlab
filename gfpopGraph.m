@@ -6,9 +6,17 @@
 %%%     edges --> vector of edges constructed from gfpopEdge.m
 %%%
 %%%     [Optional]
+%%%     User-Specified Graphs:
 %%%     startState --> string of the starting state for gfpop.m
 %%%     endState --> string of the ending state for gfpop.m
 %%%     allNullEdges --> boolean for creating a null edge for each state
+%%%
+%%%     Preset Graphs:
+%%%     decay --> nonnegative to give strength to decay into edge
+%%%     gap --> nonnegative to constrain size of gap in state change
+%%%     penalty --> nonnegative double of the penalty for the edge.
+%%%     K --> positive double of the robust biweight gaussian loss
+%%%     a --> positive double of the slope for the huber robust loss
 %%%
 %%%     OUTPUTS:
 %%%     outputGraph --> Output structure containing graph of all edges
@@ -17,90 +25,154 @@
 %%%     exGraph = gfpopGraph([upEdge dwEdge],startState="up",endState="down",allNullEdges=true);
 %%%     
 
-function outputGraph = gfpopGraph(edgesIn,varargin)
+function outputGraph = gfpopGraph(varargin)
 
     % Setting up optional inputs
     p = inputParser;
 
     % Checking inputs for required and optional values
-    addRequired(p,'edgesIn',@isstruct);
+    % User Defined Graph
+    addParameter(p,'edgesIn',[],@isstruct);
     addParameter(p,'startState',"",@isstring);
     addParameter(p,'endState',"",@isstring);
     addParameter(p,'allNullEdges',false,@islogical);
+    % Preset Graph
+    validPresets = {'empty','std','isotonic','updown','relevant'};
+    checkPresets = @(x) any(validatestring(x,validPresets));
+    addParameter(p,'preset',"",checkPresets);
+    addParameter(p,'decay',1,@isnumeric);
+    addParameter(p,'gap',0,@isnumeric);
+    addParameter(p,'penalty',0,@isnumeric);
+    addParameter(p,'K',Inf,@isnumeric);
+    addParameter(p,'a',0,@isnumeric);
 
     % Parsing inputs together
-    parse(p,edgesIn,varargin{:});
+    parse(p,varargin{:});
     edges = p.Results.edgesIn;
     startState = p.Results.startState;
     endState = p.Results.endState;
     allNullEdges = p.Results.allNullEdges;
+    preset = p.Results.preset;
+    decay = p.Results.decay;
+    gap = p.Results.gap;
+    penalty = p.Results.penalty;
+    K = p.Results.K;
+    a = p.Results.a;
 
-    % Declaring vectors
-    state1vec = [];
-    state2vec = [];
-    typevec = [];
-    paramvec = [];
-    penaltyvec = [];
-    kvec = [];
-    avec = [];
-    minvec = [];
-    maxvec = [];
-
-    % Defined edges
-    for i = 1:length(edges)
-        tempEdge = edges(i);
-        state1vec = [state1vec tempEdge.state1];
-        state2vec = [state2vec tempEdge.state2];
-        typevec = [typevec tempEdge.type];
-        paramvec = [paramvec tempEdge.parameter];
-        penaltyvec = [penaltyvec tempEdge.penalty];
-        kvec = [kvec tempEdge.k];
-        avec = [avec tempEdge.a];
-        minvec = [minvec tempEdge.min];
-        maxvec = [maxvec tempEdge.max];
-    end
-
-    % Adding optional inputs
-    if(allNullEdges)
-        uniqueVectors = unique([state1vec state2vec]);
-        for i = 1:length(uniqueVectors)
-            state1vec = [state1vec uniqueVectors(i)];
-            state2vec = [state2vec uniqueVectors(i)];
-            typevec = [typevec "null"];
-            paramvec = [paramvec 1];
-            penaltyvec = [penaltyvec 0];
-            kvec = [kvec Inf];
-            avec = [avec 0];
+    % Constructing user graph is preset graph input
+    if(strlength(preset) == 0)
+        % Declaring vectors
+        state1vec = [];
+        state2vec = [];
+        typevec = [];
+        paramvec = [];
+        penaltyvec = [];
+        kvec = [];
+        avec = [];
+        minvec = [];
+        maxvec = [];
+    
+        % Defined edges
+        for i = 1:length(edges)
+            tempEdge = edges(i);
+            state1vec = [state1vec tempEdge.state1];
+            state2vec = [state2vec tempEdge.state2];
+            typevec = [typevec tempEdge.type];
+            paramvec = [paramvec tempEdge.parameter];
+            penaltyvec = [penaltyvec tempEdge.penalty];
+            kvec = [kvec tempEdge.k];
+            avec = [avec tempEdge.a];
+            minvec = [minvec tempEdge.min];
+            maxvec = [maxvec tempEdge.max];
+        end
+    
+        % Adding optional inputs
+        if(allNullEdges)
+            uniqueVectors = unique([state1vec state2vec]);
+            for i = 1:length(uniqueVectors)
+                state1vec = [state1vec uniqueVectors(i)];
+                state2vec = [state2vec uniqueVectors(i)];
+                typevec = [typevec "null"];
+                paramvec = [paramvec decay];
+                penaltyvec = [penaltyvec 0];
+                kvec = [kvec Inf];
+                avec = [avec 0];
+                minvec = [minvec NaN];
+                maxvec = [maxvec NaN];
+            end
+        end
+    
+        if(strlength(startState) ~= 0)
+            state1vec = [state1vec startState];
+            state2vec = [state2vec NaN];
+            typevec = [typevec "start"];
+            paramvec = [paramvec NaN];
+            penaltyvec = [penaltyvec NaN];
+            kvec = [kvec NaN];
+            avec = [avec NaN];
             minvec = [minvec NaN];
             maxvec = [maxvec NaN];
         end
+    
+        if(strlength(endState) ~= 0)
+            state1vec = [state1vec endState];
+            state2vec = [state2vec NaN];
+            typevec = [typevec "end"];
+            paramvec = [paramvec NaN];
+            penaltyvec = [penaltyvec NaN];
+            kvec = [kvec NaN];
+            avec = [avec NaN];
+            minvec = [minvec NaN];
+            maxvec = [maxvec NaN];
+        end
+
+    else
+        % Creating preset graph if specified
+        if(preset == "std")
+            state1vec = ["Std" "Std"];
+            state2vec = ["Std" "Std"];
+            typevec = ["null" "std"];
+            paramvec = [decay 0];
+            penaltyvec = [0 penalty];
+            kvec = [K K];
+            avec = [a a];
+            minvec = [NaN NaN];
+            maxvec = [NaN NaN];
+        elseif(preset == "isotonic")
+            state1vec = ["Iso" "Iso"];
+            state2vec = ["Iso" "Iso"];
+            typevec = ["null" "up"];
+            paramvec = [decay gap];
+            penaltyvec = [0 penalty];
+            kvec = [K K];
+            avec = [a a];
+            minvec = [NaN NaN];
+            maxvec = [NaN NaN];
+        elseif(preset == "updown")
+            state1vec = ["Dw" "Up" "Dw" "Up"];
+            state2vec = ["Dw" "Up" "Up" "Dw"];
+            typevec = ["null" "null" "up" "down"];
+            paramvec = [decay decay gap gap];
+            penaltyvec = [0 0 penalty penalty];
+            kvec = [K K K K];
+            avec = [a a a a];
+            minvec = [NaN NaN NaN NaN];
+            maxvec = [NaN NaN NaN NaN];
+        elseif(preset == "relevant")
+            state1vec = ["Abs" "Abs"];
+            state2vec = ["Abs" "Abs"];
+            typevec = ["null" "abs"];
+            paramvec = [decay gap];
+            penaltyvec = [0 penalty];
+            kvec = [K K];
+            avec = [a a];
+            minvec = [NaN NaN];
+            maxvec = [NaN NaN];
+        end
+
     end
 
-    if(strlength(startState) ~= 0)
-        state1vec = [state1vec startState];
-        state2vec = [state2vec NaN];
-        typevec = [typevec "start"];
-        paramvec = [paramvec NaN];
-        penaltyvec = [penaltyvec NaN];
-        kvec = [kvec NaN];
-        avec = [avec NaN];
-        minvec = [minvec NaN];
-        maxvec = [maxvec NaN];
-    end
-
-    if(strlength(endState) ~= 0)
-        state1vec = [state1vec endState];
-        state2vec = [state2vec NaN];
-        typevec = [typevec "end"];
-        paramvec = [paramvec NaN];
-        penaltyvec = [penaltyvec NaN];
-        kvec = [kvec NaN];
-        avec = [avec NaN];
-        minvec = [minvec NaN];
-        maxvec = [maxvec NaN];
-    end
-
-    outputGraph = struct("state1",state1vec,"state2",state2vec,"type",typevec,"parameter",paramvec, ...
+     outputGraph = struct("state1",state1vec,"state2",state2vec,"type",typevec,"parameter",paramvec, ...
                    "penalty", penaltyvec,"K",kvec,"a",avec,"min",minvec,"max",maxvec);
 
 end
