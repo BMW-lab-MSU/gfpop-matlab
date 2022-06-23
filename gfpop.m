@@ -19,13 +19,22 @@
 %%%     ouput = gfpop(inputData,updown,"mean",ones(1,length(inputData)));                          
 %%%
 
-function result = gfpop(data,graph,type,weights,testMode)
+function result = gfpop(data,graph,type,varargin)
 
+    % Checking inputs
+    p = inputParser;
+    addRequired(p,'data',@isvector);
+    addRequired(p,'graph',@isstruct);
+    addRequired(p,'type',@isstring);
+    addParameter(p,'weights',ones(1,length(data)),@isvector);
+    addParameter(p,'testMode',0,@islogical);
+    parse(p,data,graph,type,varargin{:});
+    
     % Reordering Graph
-    [orderedGraph,vertexNames] = gfpopGraphReorder(graph);
+    [orderedGraph,vertexNames] = gfpopGraphReorder(p.Results.graph);
 
     % Running gfpop mex function
-    result = gfpop_mex(data,orderedGraph,type,weights,testMode);
+    result = gfpop_mex(p.Results.data,orderedGraph,p.Results.type,p.Results.weights,p.Results.testMode);
 
     % Converting states from integers back to string names
     tmp = [];
