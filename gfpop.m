@@ -23,9 +23,12 @@ function result = gfpop(data,graph,type,varargin)
 
     % Checking inputs
     p = inputParser;
+    validTypes = ["mean","variance","exp","poisson","negbin"];
+    checkType = @(x) any(matches(validTypes,x));
+
     addRequired(p,'data',@isvector);
     addRequired(p,'graph',@isstruct);
-    addRequired(p,'type',@isstring);
+    addRequired(p,'type',checkType);
     addParameter(p,'weights',ones(1,length(data)),@isvector);
     addParameter(p,'testMode',0,@islogical);
     parse(p,data,graph,type,varargin{:});

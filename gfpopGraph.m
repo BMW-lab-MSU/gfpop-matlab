@@ -29,6 +29,7 @@ function outputGraph = gfpopGraph(varargin)
 
     % Setting up optional inputs
     p = inputParser;
+    nonNeg = @(x) assert(isnumeric(x) && (x>=0),"Value must be nonnegative");
 
     % Checking inputs for required and optional values
     % User Defined Graph
@@ -40,11 +41,11 @@ function outputGraph = gfpopGraph(varargin)
     validPresets = {'empty','std','isotonic','updown','relevant'};
     checkPresets = @(x) any(validatestring(x,validPresets));
     addParameter(p,'preset',"",checkPresets);
-    addParameter(p,'decay',1,@isnumeric);
-    addParameter(p,'gap',0,@isnumeric);
-    addParameter(p,'penalty',0,@isnumeric);
-    addParameter(p,'K',Inf,@isnumeric);
-    addParameter(p,'a',0,@isnumeric);
+    addParameter(p,'decay',1,nonNeg);
+    addParameter(p,'gap',0,nonNeg);
+    addParameter(p,'penalty',0,nonNeg);
+    addParameter(p,'K',Inf,nonNeg);
+    addParameter(p,'a',0,nonNeg);
 
     % Parsing inputs together
     parse(p,varargin{:});

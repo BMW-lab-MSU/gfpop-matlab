@@ -39,18 +39,21 @@ function edge = gfpopEdge(state1,state2,edgeType,varargin)
     
     % Default Values for Optional Inputs
     p = inputParser;
+    nonNeg = @(x) assert(isnumeric(x) && (x>=0),"Value must be nonnegative");
+    validTypes = ["null","std","up","down","abs"];
+    checkEdge = @(x) any(matches(validTypes,x));
 
     % Checking inputs for required and optional values
     addRequired(p,'state1',@isstring);
     addRequired(p,'state2',@isstring);
-    addRequired(p,'edgeType',@isstring);
-    addParameter(p,'decay',1,@isnumeric);
-    addParameter(p,'gap',0,@isnumeric);
-    addParameter(p,'penalty',0,@isnumeric);
-    addParameter(p,'k',Inf,@isnumeric);
-    addParameter(p,'a',0,@isnumeric);
-    addParameter(p,'min',NaN,@isnumeric);
-    addParameter(p,'max',NaN,@isnumeric);
+    addRequired(p,'edgeType',checkEdge);
+    addParameter(p,'decay',1,nonNeg);
+    addParameter(p,'gap',0,nonNeg);
+    addParameter(p,'penalty',0,nonNeg);
+    addParameter(p,'k',Inf,nonNeg);
+    addParameter(p,'a',0,nonNeg);
+    addParameter(p,'min',NaN,nonNeg);
+    addParameter(p,'max',NaN,nonNeg);
 
     % Parsing inputs together
     parse(p,state1,state2,edgeType,varargin{:});
