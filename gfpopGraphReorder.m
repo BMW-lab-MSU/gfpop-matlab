@@ -1,11 +1,14 @@
+%%% Invisible function that takes in a graph structure and rearranges it
+%%% into a specific order for the gfpop function.
+
 function [orderGraph,vertexNames] = gfpopGraphReorder(input)
     
-inputGraph = table(input.state1',input.state2',input.type',input.parameter',input.penalty',input.K',input.a',input.min',input.max','VariableNames',["state1" "state2" "type" "parameter" "penalty" "K" "a" "min" "max"])
+inputGraph = table(input.state1',input.state2',input.type',input.parameter',input.penalty',input.K',input.a',input.min',input.max','VariableNames',["state1" "state2" "type" "parameter" "penalty" "K" "a" "min" "max"]);
 
 % Separate start and end nodes from regular edges
 graphNA = inputGraph(isnan(inputGraph.penalty),:);
 graphVtemp = inputGraph(~isnan(inputGraph.penalty),:);
-myVertices = unique([inputGraph.state1 inputGraph.state2]);
+myVertices = unique([graphVtemp.state1 graphVtemp.state2],'stable');
 
 % Transform abs edge into up and down edges 
 absEdge = graphVtemp(graphVtemp.type == "abs",:);
@@ -49,7 +52,7 @@ myNewGraph.state1 = double(myNewGraph.state1);
 myNewGraph.state2 = double(myNewGraph.state2);
 
 orderGraph = struct("state1",myNewGraph.state1',"state2",myNewGraph.state2',"type",myNewGraph.type',"parameter",myNewGraph.parameter', ...
-    "penalty",myNewGraph.penalty',"K",myNewGraph.K',"a",myNewGraph.a',"min",myNewGraph.min',"max",myNewGraph.max')
+    "penalty",myNewGraph.penalty',"K",myNewGraph.K',"a",myNewGraph.a',"min",myNewGraph.min',"max",myNewGraph.max');
 vertexNames = myVertices;
 
 end
