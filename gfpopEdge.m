@@ -2,6 +2,7 @@
 %%%
 %%%     INPUTS:
 %%%     [Required]
+%%%       - These inputs are not specified in the function call.
 %%%     state1 --> string of first state for the edge
 %%%     state2 --> string of second state for the edge
 %%%     edge type --> string of the edge type for the edge
@@ -11,6 +12,7 @@
 %%%                     down <- u(t) > u(t+1) + gap
 %%%                     abs <- |u(t+1)-u(t)| > gap
 %%%     [Optional]
+%%%      - These inputs must be specified in the function call
 %%%     decay --> nonnegative to give strength to decay into edge
 %%%     gap --> nonnegative to constrain size of gap in state change
 %%%     penalty --> nonnegative double of the penalty for the edge.
@@ -31,8 +33,10 @@
 %%%     OUTPUTS:
 %%%     edge --> Structure organized for implementation to gfpopGraph.m
 %%%
-%%%     EXAMPLE:
-%%%     edge1 = gfpopEdge(0,0,"null",1,0,Inf,0,NaN,NaN);
+%%%     EXAMPLES:
+%%%     edge1 = gfpopEdge("air","ground","std")
+%%%     edge2 = gfpopEdge("up","down","down",penalty=50,gap=10)
+%%%     edge3 = gfpopEdge("inc_to_bee","bee","up","penalty=.1)
 %%%
 
 function edge = gfpopEdge(state1,state2,edgeType,varargin)

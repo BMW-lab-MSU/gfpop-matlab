@@ -2,16 +2,14 @@
 %%% single structure to be implemented into gfpop.m.
 %%%
 %%%     INPUTS:
-%%%     [Required]
+%%%      - All of these inputs must be specified in the function call
 %%%     edges --> vector of edges constructed from gfpopEdge.m
-%%%
-%%%     [Optional]
-%%%     User-Specified Graphs:
+%%%     preset --> string of a preset graph (empty,std,isotonic,updown,relevant).
 %%%     startState --> string of the starting state for gfpop.m
 %%%     endState --> string of the ending state for gfpop.m
 %%%     allNullEdges --> boolean for creating a null edge for each state
 %%%
-%%%     Preset Graphs:
+%%%     Preset Graph Parameters:
 %%%     decay --> nonnegative to give strength to decay into edge
 %%%     gap --> nonnegative to constrain size of gap in state change
 %%%     penalty --> nonnegative double of the penalty for the edge.
@@ -22,7 +20,8 @@
 %%%     outputGraph --> Output structure containing graph of all edges
 %%%
 %%%     EXAMPLE:
-%%%     exGraph = gfpopGraph([upEdge dwEdge],startState="up",endState="down",allNullEdges=true);
+%%%     exGraph = gfpopGraph(edges=[upEdge dwEdge],startState="up",endState="down",allNullEdges=true);
+%%%     preGraph = gfpopGraph(preset="updown",penalty=15,gap=5,allNullEdges=true)
 %%%     
 
 function outputGraph = gfpopGraph(varargin)

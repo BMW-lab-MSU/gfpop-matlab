@@ -5,9 +5,14 @@
 %%%     functions.
 %%%
 %%%     Inputs:
+%%%     [REQUIRED]
+%%%      - These inputs are not specified in the function call
 %%%     data --> vector of doubles containing the data
 %%%     graph --> struct containing all of the edges of the graph
 %%%     type --> string defining the cost model to use
+%%%
+%%%     [OPTIONAL]
+%%%      - These inputs must be specified in the function call
 %%%     weights --> vector of weights (same size as data)
 %%%     testMode --> boolean used to debug code. False by default.
 %%%
@@ -16,7 +21,8 @@
 %%%                parameters, and the global cost.
 %%%
 %%%     Example:   
-%%%     ouput = gfpop(inputData,updown,"mean",ones(1,length(inputData)));                          
+%%%     ouput = gfpop(inputData,updown,"mean");
+%%%     weighted = gfpop(data,mygraph,"mean",weights=[1 0 1 0 1])
 %%%
 
 function result = gfpop(data,graph,type,varargin)
