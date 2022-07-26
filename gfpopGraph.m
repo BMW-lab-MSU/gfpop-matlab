@@ -2,14 +2,16 @@
 %%% single structure to be implemented into gfpop.m.
 %%%
 %%%     INPUTS:
-%%%      - All of these inputs must be specified in the function call
+%%%     [Required]
 %%%     edges --> vector of edges constructed from gfpopEdge.m
-%%%     preset --> string of a preset graph (empty,std,isotonic,updown,relevant).
+%%%
+%%%     [Optional]
+%%%     User-Specified Graphs:
 %%%     startState --> string of the starting state for gfpop.m
 %%%     endState --> string of the ending state for gfpop.m
 %%%     allNullEdges --> boolean for creating a null edge for each state
 %%%
-%%%     Preset Graph Parameters:
+%%%     Preset Graphs:
 %%%     decay --> nonnegative to give strength to decay into edge
 %%%     gap --> nonnegative to constrain size of gap in state change
 %%%     penalty --> nonnegative double of the penalty for the edge.
@@ -20,8 +22,7 @@
 %%%     outputGraph --> Output structure containing graph of all edges
 %%%
 %%%     EXAMPLE:
-%%%     exGraph = gfpopGraph(edges=[upEdge dwEdge],startState="up",endState="down",allNullEdges=true);
-%%%     preGraph = gfpopGraph(preset="updown",penalty=15,gap=5,allNullEdges=true)
+%%%     exGraph = gfpopGraph([upEdge dwEdge],startState="up",endState="down",allNullEdges=true);
 %%%     
 
 function outputGraph = gfpopGraph(varargin)
@@ -60,7 +61,7 @@ function outputGraph = gfpopGraph(varargin)
     a = p.Results.a;
 
     % Constructing user graph is preset graph input
-    if(strlength(preset) == 0)
+    if(isempty(preset))
         % Declaring vectors
         state1vec = [];
         state2vec = [];
@@ -102,7 +103,7 @@ function outputGraph = gfpopGraph(varargin)
             end
         end
     
-        if(strlength(startState) ~= 0)
+        if(~isempty(startState))
             state1vec = [state1vec startState];
             state2vec = [state2vec NaN];
             typevec = [typevec "start"];
@@ -114,7 +115,7 @@ function outputGraph = gfpopGraph(varargin)
             maxvec = [maxvec NaN];
         end
     
-        if(strlength(endState) ~= 0)
+        if(~isempty(endState))
             state1vec = [state1vec endState];
             state2vec = [state2vec NaN];
             typevec = [typevec "end"];
