@@ -61,7 +61,7 @@ function outputGraph = gfpopGraph(varargin)
     a = p.Results.a;
 
     % Constructing user graph is preset graph input
-    if(isempty(preset))
+    if(~isempty(preset))
         % Declaring vectors
         state1vec = [];
         state2vec = [];
@@ -103,7 +103,7 @@ function outputGraph = gfpopGraph(varargin)
             end
         end
     
-        if(~isempty(startState))
+        if(isempty(startState))
             state1vec = [state1vec startState];
             state2vec = [state2vec NaN];
             typevec = [typevec "start"];
