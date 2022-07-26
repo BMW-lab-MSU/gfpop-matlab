@@ -34,13 +34,13 @@ function outputGraph = gfpopGraph(varargin)
     % Checking inputs for required and optional values
     % User Defined Graph
     addParameter(p,'edgesIn',[],@isstruct);
-    addParameter(p,'startState',"",@isstring);
-    addParameter(p,'endState',"",@isstring);
+    addParameter(p,'startState',[],@isstring);
+    addParameter(p,'endState',[],@isstring);
     addParameter(p,'allNullEdges',false,@islogical);
     % Preset Graph
     validPresets = {'empty','std','isotonic','updown','relevant'};
     checkPresets = @(x) any(validatestring(x,validPresets));
-    addParameter(p,'preset',"",checkPresets);
+    addParameter(p,'preset',[],checkPresets);
     addParameter(p,'decay',1,nonNeg);
     addParameter(p,'gap',0,nonNeg);
     addParameter(p,'penalty',0,nonNeg);
@@ -61,7 +61,7 @@ function outputGraph = gfpopGraph(varargin)
     a = p.Results.a;
 
     % Constructing user graph is preset graph input
-    if(~isempty(preset))
+    if(isempty(preset))
         % Declaring vectors
         state1vec = [];
         state2vec = [];
@@ -103,7 +103,7 @@ function outputGraph = gfpopGraph(varargin)
             end
         end
     
-        if(isempty(startState))
+        if(~isempty(startState))
             state1vec = [state1vec startState];
             state2vec = [state2vec NaN];
             typevec = [typevec "start"];
