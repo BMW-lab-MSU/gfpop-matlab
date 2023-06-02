@@ -214,11 +214,11 @@ public:
 
         // Output Vector Creation
         StructArray res = factory.createStructArray({1,1},{"changepoints", "states", "forced", "parameters", "globalcost"});
-        TypedArray<int> changepointsOut = factory.createArray<int>({1,changepoints[0].size()},changepoints[0].data(),changepoints[0].data()+changepoints[0].size());
-        TypedArray<int> statesOut = factory.createArray<int>({1,states[0].size()},states[0].data(),states[0].data()+states[0].size());
-        TypedArray<bool> forcedOut({1,forced[0].size()},forced[0].begin(),forced[0].end());
-        TypedArray<double> paramsOut = factory.createArray<double>({1,parameters[0].size()},parameters[0].data(),parameters[0].data()+parameters[0].size());
-        TypedArray<double> globalCostOut = factory.createArray<double>({1,globalCost.size()}, globalCost.data(), globalCost.data()+globalCost.size());
+        TypedArray<int> changepointsOut = factory.createArray({1,changepoints[0].size()},changepoints[0].data(),changepoints[0].data()+changepoints[0].size());
+        TypedArray<int> statesOut = factory.createArray({1,states[0].size()},states[0].data(),states[0].data()+states[0].size());
+        TypedArray<bool> forcedOut = factory.createArray({1,forced[0].size()},forced[0].begin(),forced[0].end());
+        TypedArray<double> paramsOut = factory.createArray({1,parameters[0].size()},parameters[0].data(),parameters[0].data()+parameters[0].size());
+        TypedArray<double> globalCostOut = factory.createArray({1,globalCost.size()}, globalCost.data(), globalCost.data()+globalCost.size());
 
         // Reversing Vectors to go Start -> Finish
         std::reverse(changepointsOut.begin(),changepointsOut.end());
